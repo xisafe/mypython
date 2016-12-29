@@ -1,0 +1,7 @@
+id;name;salary
+('str', None, 0);('str', None, 0);('float', None, 0)
+3;Sidorov;3000.0
+2;Petrov;2000.0
+4;Vasechkin;4000.0
+3;Sidorov;3000.0
+1;Èvanov;1000.0

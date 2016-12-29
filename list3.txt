@@ -1,0 +1,16 @@
+\CDH-5.7.2-1.cdh5.7.2.p0.18-el6.parcel.sha1:eb66700735d6407c2858034b338ecce1
+\cloudera-manager-installer.bin:36259d4397158d8d6b8016d86c4f045c
+\ez_setup.py:81d5d742da0c7413f7c3a9229582d6dd
+\GrandFatherSon-1.3.tar.gz:c15a93fc79b82ea14e0d3cad6b1ba503
+\icon.png:658e8dc0bf8b9a09b36994abf9242099
+\jenkins-2.7.2.zip:582f43d638f15efaedaf3a15f9e7a03e
+\jenkins.msi:10f0c55c5f29c2addbde563815beaa73
+\manifest.json:6ea570057d0c761b0bd7f0e25f9072cb
+\popup.html:842508448a700cbd129e024569eba1b3
+\pymongo-2.6.3.tar.gz:686db66dadc518c039b637d398cf45b4
+\sample_submission.csv.zip:1deabb6b52e69024f1fd774a69a0c963
+\Setup.rar:835aa42b8981d18601bbe8596f404f17
+\train_categorical.csv.zip:df4a44b58d7897c29004e9c33eb514a1
+\贝叶斯的文本分类从原理到Python实现.zip:06f4ba924d816e22e672df591fab5cb2
+\贝叶斯的文本分类从原理到Python实现\text-classification.7z:697683bb5bd147363080bc743ad88fb6
+\贝叶斯的文本分类从原理到Python实现\贝叶斯的文本分类从原理到Python实现.docx:d2cc81f083c56c33471e024b16bba431
