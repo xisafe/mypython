@@ -31,9 +31,9 @@ def getBigVol(stockCode='000748',vols=400):
     return df,sumt   #
     
 if __name__ == '__main__':
-    detail,groupSum=getBigVol('600339',200)
+    detail,groupSum=getBigVol('000629',500)
 #    while True:
-#        getBigVol()
+#        getBigVol(stockcode,vol)
 #        print time.strftime('%Y-%m-%d %H:%M:%S').decode('utf-8')
 #        time.sleep(50)
  
