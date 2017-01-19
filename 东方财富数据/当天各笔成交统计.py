@@ -2,6 +2,7 @@
 import urllib
 import pandas as pd
 import json
+import tushare as ts
 import matplotlib.pyplot as plt
 def getMarket(stockcode):
     if stockcode.startswith('6'):
@@ -19,6 +20,7 @@ def getDealVol(stockcode,vol=300):
     market=getMarket(stockcode)
     urlraw='http://hqdigi2.eastmoney.com/EM_Quote2010NumericApplication/CompatiblePage.aspx?Type=OB&stk={0}{1}&Reference=xml&limit={2}&page={3}'
     url=urlraw.format(stockcode,market,vol,1) #第一页
+    print(url)
     content=urllib.request.urlopen(url).read().decode('utf-8').replace("var jsTimeSharingData=","").replace(";","")
     content=content.replace('pages','"pages"').replace('data','"data"')
     jsondata= json.loads(content)
@@ -43,6 +45,7 @@ def getDealVol(stockcode,vol=300):
     newdata['price']=pd.to_numeric(newdata['price'])#.astype('float64')
     newdata['dtype']=newdata['dtype'].astype('int')
     newdata['type']=newdata['dtype'].apply(lambda x:getBSType(x))
+    newdata['amount']=newdata['vol']*newdata['price']
     return newdata
 def getBigVol(df):
     dtype=[u'中性',u'买盘',u'卖盘']
@@ -51,21 +54,24 @@ def getBigVol(df):
     df.index=range(df.shape[0])
     gp= df.groupby(['type'])
     sumt=gp.sum()
+    sumt['avgPrice']=sumt.amount/sumt.vol #成交均价
     print(sumt)
     plt.figure(figsize=(15,4));
-    plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] #用来正常显示中文标签
-    plt.rcParams['font.sans-serif'] = ['SimHei'] #用来正常显示中文标签
-    plt.rcParams['axes.unicode_minus'] = False #用来正常显示负号
     for i in range(3):   
         #print(dtype[i])print(color[i])
         plt.bar(df[df['type']==dtype[i]].index, df[df['type']==dtype[i]].vol,alpha=0.7,color=color[i])
     plt.grid(True)
-    plt.title(u"大单设置为：")
+    plt.title(u"大单统计")
     #plt.xticks(range(df.shape[0]),range(df.shape[0]))
     plt.margins(0)
     plt.show()
-    return df,sumt   #    
+    #return sumt   #    
 stockcode='000066'
-vol=300
+vol=1
 op=getDealVol(stockcode,vol)
 getBigVol(op)
+#today=ts.get_today_ticks(stockcode)
+#gp= today.groupby(['type'])
+#sumt=gp.sum()
+#sumt['avgPrice']=sumt.amount/sumt.volume #成交均价
+#print(sumt)

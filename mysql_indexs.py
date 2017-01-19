@@ -14,8 +14,8 @@ def getConn(host, user, passwd, db='mysql', port=3306, charset=''):
   try:
     conn = pymysql.connect(host=host, user=user, passwd=passwd, db=db, port=port, charset=charset)
     return conn
-  except pymysql.Error, e:
-    print "Error %d: %s" % (e.args[0], e.args[1])
+  except e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
     sys.exit(1)
     
 #----------------------------------------------------------------------
