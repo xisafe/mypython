@@ -32,11 +32,11 @@ def getBigVol(stockCode='000748',vols=400):
     return df,sumt   #
     
 if __name__ == '__main__':
-    detail,groupSum=getBigVol('000066',500)
+    detail,groupSum=getBigVol('000066',100)
     print(time.strftime('%Y-%m-%d %H:%M:%S')+"上次大单成交时间"+detail.iloc[-1,2]+"  价格："+str(detail.iloc[-1,3])+"  "+detail.iloc[-1,6]+str(detail.iloc[-1,4]))
     print(detail.iloc[-10:-1,2:7])
 #    while True:
-#        detail,groupSum=getBigVol('600581',100)
+#        detail,groupSum=getBigVol('000066',100)
 #        print(time.strftime('%Y-%m-%d %H:%M:%S')+"上次大单成交时间"+detail.iloc[-1,2]+"  价格："+str(detail.iloc[-1,3])+"  "+detail.iloc[-1,6]+str(detail.iloc[-1,4]))
 #        print(detail.iloc[-10:-1,2:7])
 #        time.sleep(60)
