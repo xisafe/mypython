@@ -235,8 +235,8 @@ def PriceAndBBs(stockcode=''): #评论与股价关系
     rs.plot(secondary_y=u'bbsNum',figsize=(12,5))
     return rs
             
-stockcode='600581' #股票代码
-pages=120  #页码
+stockcode='000066' #股票代码
+pages=40  #页码
 runFource=1 # 强制重新跑数 0不强制，大于0强制
 runAgain(stockcode,pages,runFource)
 price=PriceAndBBs(stockcode)

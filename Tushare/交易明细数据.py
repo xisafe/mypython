@@ -15,6 +15,7 @@ def getDeatil(start,end,stockcode):
             allData=pd.concat([detail,allData])
         else:
             print(str(x)+'日无数据')
+    allData=allData.reset_index(drop=True)  
     return allData
 if __name__ =='__main__':
     deal= getDeatil('2017-01-01','2017-02-18','600581') 

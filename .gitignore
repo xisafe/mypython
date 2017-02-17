@@ -138,3 +138,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 *.ini
+tree.dot
+*.pdf

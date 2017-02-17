@@ -61,13 +61,13 @@ def getBigVol(df):
         #print(dtype[i])print(color[i])
         plt.bar(df[df['type']==dtype[i]].index, df[df['type']==dtype[i]].vol,alpha=0.7,color=color[i])
     plt.grid(True)
-    plt.title(u"大单统计")
+    plt.title("大单统计")
     #plt.xticks(range(df.shape[0]),range(df.shape[0]))
     plt.margins(0)
     plt.show()
     #return sumt   #    
-stockcode='000066'
-vol=1
+stockcode='600581'
+vol=100
 op=getDealVol(stockcode,vol)
 getBigVol(op)
 #today=ts.get_today_ticks(stockcode)

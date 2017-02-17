@@ -1,65 +1,23 @@
-# coding=utf-8
-from lxml import etree
-import urllib2
-import urllib
-import jieba
-import pandas as pd
-import sqlite3
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud
-import datetime
-#url='http://guba.eastmoney.com'
-
-def reportLoanCustStat():
-    db = md. mongo_db14_rpt()
-    col_app_data = db.applicationData
-    col_credit = db.applicationCreditScore
-    col_fraud = db.applicationFraudScore
-    col_rpt_stat = db.reportLoanCustStat
-    col_rpt_stat.drop()
-    statList= []
-    i = 0
-    for rec in col_app_data.find():
-        data = rec["data"]
-        if "cashadvStatus" in data and (data["cashadvStatus"] == u"还款清算" or data['cashadvStatus'] == u"关闭"):
-            stat = {}
-            stat["cashadvStatus"] = data["cashadvStatus"]
-            stat["cashadvId"] = data["cashadvId"]
-            stat["cashadvCreateDate"] = data["cashadvCreateDate"]
-            stat["creditDate"] = data["creditDate"]
-            stat["isRenew"] = data["isRenew"]
-
-            if "paymentResult" in rec:
-                payback = rec["paymentResult"]
-                stat["totalPayback"] = payback["totalPayback"]
-                stat["actualPayback"] = payback["actualPayback"]
-                stat["paybackDays"] = payback["paybackDays"]
-                stat["isDefault"] = payback["isDefault"]
-                stat["isLost"] = payback["isLost"]
-                stat["isNoPayback"] = payback["isNoPayback"]
-
-            fraudScore = col_fraud.find_one({"cashadvId":rec["cashadvId"] })
-            if fraudScore:
-                fraudScoreList = fraudScore["data"]
-                for fs in fraudScoreList:
-                    vStr = "fraudScore_V"+fs["version"]
-                    vStr = vStr.replace('.','_') # mongo doesnot support "."
-                    stat[vStr] = fs["score"]
-
-            creditScore = col_credit.find_one({"leadId":rec["leadId"]})
-            if creditScore:
-                creditScoreList = creditScore["data"]
-                for cs in creditScoreList:
-                    vStr = "creditScore_V"+cs["version"]
-                    vStr = vStr.replace('.','_') # mongo doesnot support "."
-                    stat[vStr] = cs["score"]
-                    vStr = "creditLevel_V"+cs["version"]
-                    vStr = vStr.replace('.','_') # mongo doesnot support "."
-                    stat[vStr] = cs["level"]
-
-            col_rpt_stat.save(stat)
-
-            i = i+1
-
-            if i%100==0:
-                print(i,' records added')
+import tkinter  as tk  
+from tkinter    import ttk  
+  
+def get_screen_size(window):  
+    return window.winfo_screenwidth(),window.winfo_screenheight()  
+  
+def get_window_size(window):  
+    return window.winfo_reqwidth(),window.winfo_reqheight()  
+  
+def center_window(root, width, height):  
+    screenwidth = root.winfo_screenwidth()  
+    screenheight = root.winfo_screenheight()  
+    size = '%dx%d+%d+%d' % (width, height, (screenwidth - width)/2, (screenheight - height)/2)  
+    print(size)  
+    root.geometry(size)  
+  
+root = tk.Tk()  
+root.title('测试窗口')  
+center_window(root, 300, 240)  
+root.maxsize(600, 400)  
+root.minsize(300, 240)  
+ttk.Label(root, relief = tk.FLAT, text = '屏幕大小(%sx%s)\n窗口大小(%sx%s)' % (get_screen_size(root) + get_window_size(root))).pack(expand = tk.YES)  
+tk.mainloop()  
