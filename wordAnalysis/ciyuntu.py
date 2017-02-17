@@ -12,12 +12,14 @@ from ciyuntu_class import ciyuntu_class
 cyt = ciyuntu_class()
 from pytagcloud import make_tags,create_tag_image
 from random import sample
-
-comment = pd.read_csv('电商评论数据.csv',encoding='gbk')
-comment = comment.drop(['Unnamed: 0'],axis=1)
+import sqlite3
+conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #
+comment=pd.read_sql('SELECT * FROM stockBBS LIMIT 10000',conn)
+#comment = pd.read_csv('电商评论数据.csv',encoding='gbk')
+#comment = comment.drop(['Unnamed: 0'],axis=1)
 # df_comment = comment[['评价内容']].ix[0:30]
 index_5000 = sample(list(comment.index),5000)
-df_comment = comment[['评价内容']].ix[index_5000]
+df_comment = comment[['contents']].ix[index_5000]
 df_comment.index = range(df_comment.shape[0])
 # 分词
 # 分词
