@@ -140,3 +140,5 @@ $RECYCLE.BIN/
 *.ini
 tree.dot
 *.pdf
+*.ini
+.spyproject/workspace.ini

@@ -18,4 +18,4 @@ def getDeatil(start,end,stockcode):
     allData=allData.reset_index(drop=True)  
     return allData
 if __name__ =='__main__':
-    deal= getDeatil('2017-01-01','2017-02-18','600581') 
+    deal2= getDeatil('2017-01-01','2017-02-18','600581') 
