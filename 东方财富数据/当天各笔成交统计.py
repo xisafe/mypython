@@ -66,7 +66,7 @@ def getBigVol(df):
     plt.margins(0)
     plt.show()
     #return sumt   #    
-stockcode='600581'
+stockcode='000066'
 vol=100
 op=getDealVol(stockcode,vol)
 getBigVol(op)
