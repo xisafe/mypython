@@ -201,7 +201,9 @@ def getBaduser(stockcode=''): #庄托信号
     where userUrl>''
     GROUP BY userName,userUrl HAVING count(1)>3 ) h 
     left join
-    (SELECT julianday(max(dates))-julianday(min(dates)) totaldays from stockBBS{0}) k
+    (SELECT julianday(max(dates))-julianday(min(dates)) totaldays from 
+     (SELECT dates from stockBBS{0} GROUP BY dates
+      HAVING count(1)>(SELECT 0.4*count(1)/count(DISTINCT dates) num from stockBBS{0}))) k
     where round(h.cmNum*1.0/k.totaldays,2)>0.3 and round(h.cmDays*1.0/k.totaldays,2) >0.1 and round(h.cmNum*1.0/h.cmDays,2)>2
     ORDER BY h.cmNum desc;""".format(stockcode)
     badusers=pd.read_sql(badsql,conn)
@@ -235,9 +237,9 @@ def PriceAndBBs(stockcode=''): #评论与股价关系
     rs.plot(secondary_y=u'bbsNum',figsize=(12,5))
     return rs
             
-stockcode='000066' #股票代码
-pages=40  #页码
-runFource=1 # 强制重新跑数 0不强制，大于0强制
+stockcode='600556' #股票代码
+pages=120  #页码
+runFource=0 # 强制重新跑数 0不强制，大于0强制
 runAgain(stockcode,pages,runFource)
 price=PriceAndBBs(stockcode)
 badusers=getBaduser(stockcode)

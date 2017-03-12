@@ -22,8 +22,9 @@ def getBigVol(stockCode='000748',vols=400):
 #    plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] #用来正常显示中文标签
 #    plt.rcParams['font.sans-serif'] = ['SimHei'] #用来正常显示中文标签
 #    plt.rcParams['axes.unicode_minus'] = False #用来正常显示负号
+    pdf=df.tail(100)
     for i in range(3):     
-        plt.bar(df[df['type']==dtype[i]].index, df[df['type']==dtype[i]].volume,alpha=0.7,color=color[i])
+        plt.bar(pdf[pdf['type']==dtype[i]].index, pdf[pdf['type']==dtype[i]].volume,alpha=0.7,color=color[i])
     plt.grid(True)
     plt.title(stockCode+u"大单设置为："+str(vols))
     #plt.xticks(range(df.shape[0]),range(df.shape[0]))
@@ -32,7 +33,7 @@ def getBigVol(stockCode='000748',vols=400):
     return df,sumt   #
     
 if __name__ == '__main__':
-    detail,groupSum=getBigVol('600581',100)
+    detail,groupSum=getBigVol('000066',100)
     print(time.strftime('%Y-%m-%d %H:%M:%S')+"上次大单成交时间"+detail.iloc[-1,2]+"  价格："+str(detail.iloc[-1,3])+"  "+detail.iloc[-1,6]+str(detail.iloc[-1,4]))
     print(detail.iloc[-10:-1,2:7])
 #    while True:

@@ -73,5 +73,5 @@ db = client.master_data
 col_app_data = db.applicationData         
 for rec in col_app_data.find().limit(20):#{"leadId":{"$lt":"40000","$gt":"20000"}}
         data = rec["data"]
-        if "cashadvStatus" in data and (data["cashadvStatus"] == u"还款清算" or data['cashadvStatus'] == u"关闭" or data['cashadvStatus'] == u"核销"):
-            print data
+        #if "cashadvStatus" in data and (data["cashadvStatus"] == u"还款清算" or data['cashadvStatus'] == u"关闭" or data['cashadvStatus'] == u"核销"):
+        print(data)
