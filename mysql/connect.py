@@ -1,12 +1,12 @@
 import pymysql
 import time
 start = time.clock()
-conn = pymysql.connect(host='192.168.0.16', port=3306, user='shujufenxi', passwd='H712EaJfLA',db='mca_crm',charset='utf8')
+conn = pymysql.connect(host='192.168.199.112', port=3306, user='root', passwd='ezbuyisthebest',db='statis',charset='utf8')
 cur = conn.cursor()
-cur.execute("SELECT lead_id,creationtime,department FROM leads")
+cur.execute("select c.customer_id,c.catalog_code from cc_customer c")
 for r in cur.fetchall():
            print(r)
            #cur.close()
 conn.close()
 end = time.clock()
-print "read: %f s" % (end - start)
+print("read: %f s" % (end - start))

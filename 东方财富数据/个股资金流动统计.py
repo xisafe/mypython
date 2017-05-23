@@ -35,4 +35,4 @@ def getRzRq(stockcode='000066',listSize=1000):
             fd[x]=fd[x].astype('float')/10000
     fd[['主力净流入额' ,'股价']].plot(kind='line',secondary_y='股价',figsize=(18,6),grid=True)       
     return fd
-data=getRzRq('000066')
+data=getRzRq('600866')

@@ -10,8 +10,8 @@ import datetime
 import tushare as ts
 import math
 #url='http://guba.eastmoney.com'
-
-
+con_str="/Users/hua/documents/TestData.db"
+local_words='../files/outwords.txt'
 def isValidUrl(url='http://www.baidu.com'):#由于错误网页被跳转所以判断不准确
     try :
         rep=urllib.request.urlopen(url,timeout=10)
@@ -147,16 +147,16 @@ def scaryData(stockcode='000748',pages=10): #爬取数据存储在sqlite3中
     allcon['dates']=pd.to_datetime(allcon['dates'],format='%Y-%m-%d')
     allcon=allcon[allcon['dates']>'2016-01-01']
     #allcon['times']=pd.to_timedelta(allcon['times'])
-    conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #/360yun/myprog
+    conn = sqlite3.connect(con_str) #/360yun/myprog
     runner = conn.cursor()
     runner.execute('drop table IF EXISTS  stockBBS{0}'.format(stockcode))
     allcon.to_sql('stockBBS{0}'.format(stockcode),conn,flavor='sqlite')
 
 def getSeg(stockcode): #获取分词的DataFrame 注意修改一些文件路径
-    conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #
+    conn = sqlite3.connect(con_str) #
     scarydata=pd.read_sql('SELECT userName,userUrl,times,dates,contents FROM stockBBS{0}'.format(stockcode),conn)
     afterseg=[]
-    stopwords= {}.fromkeys([line.rstrip().decode('utf-8') for line in open('E:/360yun/myprog/outwords.txt','rb')]) #如果确保唯一可以直接用list
+    stopwords= {}.fromkeys([line.rstrip().decode('utf-8') for line in open(local_words,'rb')]) #如果确保唯一可以直接用list
     for i,t in scarydata.iterrows() :
         segs = jieba.cut(t[4])
         for seg in segs:
@@ -190,7 +190,7 @@ def getBBSlist(stockcode='000748',pages=10,parenturl='http://guba.eastmoney.com'
             lists.append((h.text,parenturl+h.attrib['href']))
     return lists
 def getBaduser(stockcode=''): #庄托信号
-    conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #
+    conn = sqlite3.connect(con_str) #
     badsql="""select h.userName,h.userUrl,h.cmNum,h.cmDays,k.totaldays,
     round(h.cmNum*1.0/k.totaldays,2) day_avg_cmNum,
     round(h.cmDays*1.0/k.totaldays,2) rate_cmDays,
@@ -210,7 +210,7 @@ def getBaduser(stockcode=''): #庄托信号
     badusers.columns=[u'评论人',u'评论人链接',u'总评论数',u'参与评论天数',u'总天数',u'日均评论数',u'评论参与度',u'参与日日均评论数']
     return badusers
 def runAgain(stockcode='',pages=10,runFource=0): #是否重新跑数 一天之内不在重新跑数
-    conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #
+    conn = sqlite3.connect(con_str) #
     #badsql="""SELECT date(max(dates),'start of day','-1 day') maxdate FROM stockBBS{0}""".format(stockcode)
     exitssql="""SELECT rootpage FROM sqlite_master where type='table' and tbl_name='stockBBS{0}'""".format(stockcode)
     cu = conn.cursor()
@@ -226,7 +226,7 @@ def runAgain(stockcode='',pages=10,runFource=0): #是否重新跑数 一天之�
     elif runFource==0 and (pd.to_datetime(datetime.datetime.now())-maxdate.iloc[0,0]).days>10 :
         scaryData(stockcode,pages) #输入股票代码 页数
 def PriceAndBBs(stockcode=''): #评论与股价关系
-    conn = sqlite3.connect("E:/360yun/myprog/TestData.db") #
+    conn = sqlite3.connect(con_str) #
     #badsql="""SELECT date(max(dates),'start of day','-1 day') maxdate FROM stockBBS{0}""".format(stockcode)
     ssql="""SELECT substr(dates,0,11) dates,count(1) num FROM stockBBS{0} GROUP BY substr(dates,0,11)""".format(stockcode)
     datesNum=pd.read_sql_query(ssql,conn,index_col='dates')
@@ -237,8 +237,8 @@ def PriceAndBBs(stockcode=''): #评论与股价关系
     rs.plot(secondary_y=u'bbsNum',figsize=(12,5))
     return rs
             
-stockcode='600556' #股票代码
-pages=120  #页码
+stockcode='000717' #股票代码
+pages=100  #页码
 runFource=0 # 强制重新跑数 0不强制，大于0强制
 runAgain(stockcode,pages,runFource)
 price=PriceAndBBs(stockcode)

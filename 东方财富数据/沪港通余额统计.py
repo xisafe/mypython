@@ -20,7 +20,7 @@ mydf.saleOut=mydf.saleOut.astype(float)/100
 mydf.netBuyIn=mydf.netBuyIn.astype(float)/100
 mydf.balance=mydf.balance.astype(float)/100
 mydf.SH=mydf.SH.astype(float)
-conn=sqlite3.connect('e:/360yun/myprog/TestData.db')
+#conn=sqlite3.connect('/Users/hua/documents/TestData.db')
 mydf.SHOverRate=mydf.SHOverRate.astype(float)
 #mydf.reindex(mydf['dates']) print(os.getcwd())
 mydf=mydf.set_index(['dates'])
@@ -28,5 +28,7 @@ mydf=mydf.set_index(['dates'])
 #mydf.to_sql('HGTbalance',conn,if_exists='replace')
 mydf=mydf.sort_index()
 #print(mydf)
-mydf=mydf[mydf.index>'2015-11-20']
+#mydf=mydf[mydf.index>'2015-11-20']
 mydf[['netBuyIn','SH']].plot(secondary_y='SH',figsize=(50,8),grid=True)
+mydf.columns=['买入金额(亿元)','卖出金额(亿元)','净买入金额','余额','上证指数','上证涨幅']  # 金额单位为：百万
+mydf.to_excel('/Users/hua/documents/沪股通交易统计.xlsx')

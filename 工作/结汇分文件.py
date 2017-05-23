@@ -40,7 +40,7 @@ if __name__ == '__main__':
             
     #maindata=data.copy()
     #data3=data.join(checked,on='payment_number',how='inner',rsuffix='last-')
-    #engine= create_engine('mssql+pyodbc://publicezbuy:Yangqiang100%@192.168.199.106:1433/ezfinance',echo = True)
+    engine= create_engine('mssql+pymssql://publicezbuy:Yangqiang100%@192.168.199.106:1433/ezfinance',echo = True)
     #y=pd.read_excel("/users/hua/documents/temp/jiehui2015-checkout/外汇结汇包裹201504-1000新币包裹.xlsx")
     #checked=eachFile(filePath)
     #readFile(filePath)
