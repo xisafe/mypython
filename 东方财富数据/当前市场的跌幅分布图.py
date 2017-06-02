@@ -76,7 +76,7 @@ if __name__ == '__main__':
             tj=getStat()
             timedata.loc[len(timedata)]={'dates':dates,'times':str(times),'un4':tj.iloc[2,3]-0,'un3':tj.iloc[3,3]-tj.iloc[2,3],'un2':tj.iloc[4,3]-tj.iloc[3,3],'un1':tj.iloc[5,3]-tj.iloc[4,3],'un0':tj.iloc[6,3]-tj.iloc[5,3],'up0':tj.iloc[7,3]-tj.iloc[6,3],'up1':tj.iloc[8,3]-tj.iloc[7,3],'up2':tj.iloc[9,3]-tj.iloc[8,3],'up3':tj.iloc[10,3]-tj.iloc[9,3],'up4':1-tj.iloc[10,3],'fall':tj.iloc[6,3]}
             timedata[['times','un2','un1','un0','up0','up1','up2','fall']].plot(kind='line',x='times',figsize=(11,5)) #,secondary_y='fall'
-            time.sleep(120)
+            time.sleep(180)
         elif (times>=1501 or times<800):
             print(time.strftime("%Y-%m-%d %H:%M:%S", nows),'非交易时间')
             break 
