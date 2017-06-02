@@ -1,6 +1,6 @@
 #https://zhuanlan.zhihu.com/p/21401793?refer=loan-analytics
 import pandas as pd
-dt=pd.read_csv('/users/hua/downloads/detail_data7.csv',sep ='\t',encoding='UTF-16LE')
+dt=pd.read_csv('/users/hua/downloads/detail_data2.csv',sep ='\t',encoding='UTF-16LE')
 dt['Total2']=dt['Total']-dt['Refund']
 #no_mat=dt[dt['Is']==0]
 #dt2=dt[dt['HasCaculate']==1]
