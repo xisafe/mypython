@@ -14,5 +14,4 @@ def getData(bdate='2017-04-01',edate='2017-05-30'):
     data2.to_excel(workdir+'/out.xlsx',index=False)
     outfile=xw.Book(workdir+'/out.xlsx')
     
-    /srv/kettle/bi/kettle/product/65eday_product_list_stat.ktr
-U    /srv/kettle/bi/kettle/repair_data/65eday_product_list_load.ktr
+ 
