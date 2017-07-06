@@ -4,6 +4,8 @@ import pandas as pd
 import datetime
 import math
 dbname='stocks'
+dbpath='E:\myprog\TestData.db'
+#dbpath="/Users/hua/documents/TestData.db"
 if 'stocks' not in dir():
     stocks=ts.get_stock_basics()  
 def getTag(x):
@@ -56,7 +58,7 @@ def getLastDate():
 if __name__=='__main__':
     yes_time =  datetime.datetime.now() + datetime.timedelta(days=-1)
     enddate=yes_time.strftime("%Y-%m-%d")
-    conn = sqlite3.connect("/Users/hua/documents/TestData.db") #
+    conn = sqlite3.connect(dbpath) #
     tableCheck()
     mapdate=getLastDate()
     i=1

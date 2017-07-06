@@ -1,9 +1,38 @@
+import pandas as pd
 from matplotlib.dates import DateFormatter, WeekdayLocator,DayLocator, MONDAY,date2num
 from matplotlib.finance import candlestick_ohlc
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import tushare as ts
+from sqlalchemy import create_engine
+dbpath='E:\myprog\TestData.db' #数据库文件完整路径
+stockcode='600866' # 股票代码
+begindate='2017-02-01' #交易开始日期
+enddate='2017-06-12'  #交易结束日期
+engine= create_engine('sqlite:///{0}'.format(dbpath)) 
+# 使用sqlalchemy连接数据库，python可以简单连接sqlite，但是为了方便数据库类型变更使用sqlalchemy，支持多种数据库
+stdata = pd.read_sql_query("select * from stocks where code='{0}' and date between '{1}' and '{2}'".format(stockcode,begindate,enddate),con= engine,index_col='date')
+stdata.index= pd.to_datetime(stdata.index)
+stdata=stdata.sort_index()
+stdata['return'] = stdata ['close'] / stdata.close.iloc[0]
+stdata['return'].plot(grid=True)
+stdata['p_change'].plot(grid=True,figsize=(12,7)).axhline(y=0, color='black', lw=2)
+stdata[['close','turnover']].plot(figsize=(22,8),secondary_y='close',grid=True)
+close_price = stdata['close']
+log_change = np.log(close_price) - np.log(close_price.shift(1))
+log_change.plot(grid=True,figsize=(12,7)).axhline(y=0, color='black', lw=2)
+small = stdata[['close', 'price_change', 'ma20','volume', 'v_ma20', 'turnover']]
+#矩阵散点图
+pd.scatter_matrix(small,figsize=(18,12))
+small = stdata[['close', 'price_change', 'ma20','volume', 'v_ma20', 'turnover']]
+#相关性，相关系数
+cov = np.corrcoef(small.T)
+plt.figure(figsize=(12,7))
+img = plt.matshow(cov,cmap=plt.cm.winter)
+#相关性矩阵图
+plt.colorbar(img, ticks=[-1,0,1])
+plt.show()
+#收盘价和Ma20的关系图
+stdata[['close','ma20']].plot(secondary_y='ma20',figsize=(12,7), grid=True)
 def pandas_candlestick_ohlc(dat, stick = "day", otherseries = None):
     mondays = WeekdayLocator(MONDAY)        # major ticks on the mondays
     alldays = DayLocator()              # minor ticks on the days
@@ -71,6 +100,4 @@ def pandas_candlestick_ohlc(dat, stick = "day", otherseries = None):
     fig.set_figwidth(10)
     plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
     plt.show()
-
-#stdata=ts.get_h_data('600581',start='2016-06-01',end='2017-12-12')   
 pandas_candlestick_ohlc(stdata,stick = "day",otherseries=['ma5','ma20'])
