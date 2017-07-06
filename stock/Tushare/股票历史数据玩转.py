@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 dbpath='E:\myprog\TestData.db' #数据库文件完整路径
 stockcode='600866' # 股票代码
 begindate='2017-02-01' #交易开始日期
-enddate='2017-06-01'  #交易结束日期
+enddate='2017-06-12'  #交易结束日期
 engine= create_engine('sqlite:///{0}'.format(dbpath)) 
 # 使用sqlalchemy连接数据库，python可以简单连接sqlite，但是为了方便数据库类型变更使用sqlalchemy，支持多种数据库
 stdata = pd.read_sql_query("select * from stocks where code='{0}' and date between '{1}' and '{2}'".format(stockcode,begindate,enddate),con= engine,index_col='date')

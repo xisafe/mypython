@@ -1,9 +1,9 @@
-# coding=utf-8
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 #from  matplotlib.colors import cnames
 import random #import seaborn as sns
 #colors=[u'blue',u'yellow',u'red',u'green',u'cyan',u'magenta',u'black']#colors.extend(filter(lambda x :len(x)<7 and x not in colors,cnames.keys())) # 设置不同颜色集合
@@ -32,22 +32,21 @@ def SystematicSampling(dataMat,number):	#系统抽样无放回
      else :
          return RandomSampling(dataMat,number)
 
-def ReliefF(mymat,N=20,K=6,M=40):   #mymat为数组且最后一列为分类的，N #执行次数 K=6 #最近的k个样本 M=40  抽样次数
-    rows,cols=mymat.shape
-    rows=rows*1.0
-    mylabel=np.array(mymat[:,cols-1]) #类别变量，因变量y
+def ReliefF(X,y,N=20,K=6,M=40):   #X,y(必须是分类或者类别变量)，N #执行次数 K=6 #最近的k个样本 M=40  抽样次数
+    rows,cols=X.shape
+    rows=rows*1.0  # mylabel=y #类别变量，因变量y
     plt.figure()
-    Amax_min_diff=mymat[:,0:cols-1].max(axis=0)-mymat[:,0:cols-1].min(axis=0)
-    dislabels=np.unique(mylabel)  #list(pd.unique(mylabel)) # np.unique(mylabel)
+    Amax_min_diff=X.max(axis=0)-X.min(axis=0)
+    dislabels=np.unique(y)  #list(pd.unique(mylabel)) # np.unique(mylabel)
     classSet={}
-    labNumDict=pd.DataFrame((mymat[:,cols-1]),columns=['labels']).groupby(by='labels')['labels'].agg({u"nums":np.size}).to_dict()['nums']
+    labNumDict=pd.DataFrame(y,columns=['labels']).groupby(by='labels')['labels'].agg({u"nums":np.size}).to_dict()['nums']
     WA=[]
     for i in dislabels:
-        classSet[i]=np.array(pd.unique(mymat[np.where(mylabel==i)[0],0:cols-1]).tolist())
+        classSet[i]=np.array(pd.unique(X[np.where(y==i)[0],:]).tolist())
     for lp in range(N):
-        w=np.zeros(shape=(cols-1)) #[0]*(cols-1)
+        w=np.zeros(shape=(cols)) #[0]*(cols-1)
         for l in range(M):
-            Rset=RandomSampling(mymat,1)[0]  #随机抽样
+            Rset=RandomSampling(X,1)[0]  #随机抽样
             Rtype=Rset[cols-1]              #抽出的样本类别
             Rdata=np.array(Rset[0:cols-1].tolist())   #样本数据
             for i in dislabels:
@@ -69,7 +68,14 @@ def ReliefF(mymat,N=20,K=6,M=40):   #mymat为数组且最后一列为分类的�
     plt.show()
     ranklist=list(rs.index)
     return ranklist #结果按权值从小到大排序
-
+if __name__ == '__main__':
+    data=pd.read_csv('D:\model_data\creditcard.csv')
+    data.rename(columns={'Class':'Target'}, inplace = True)#设立目标变量 因变量
+     #desc=dataDesc(std_data) #数据初步探索
+    y=np.array(data['Target'])
+    x_df=data.drop(['Target'],axis=1)
+    feature_names=list(x_df.columns)
+    X=StandardScaler().fit_transform(X=x_df,y=y)
 #mydata=pd.read_csv('d:/breast-cancer-wisconsin.data',header=None,sep=',',na_values='?')
 #mydata.columns=[u'id',u'块厚度',u'细胞大小均匀性',u'细胞形态均匀性',u'粘附力',u'细胞尺寸',u'裸核',u'Bland',u'正常核仁',u'核分裂',u'分类']
 #mydata[6]=mydata[6].astype(float).fillna(mydata[6].mean())# 只有在column名字为纯数值的情况下可用
