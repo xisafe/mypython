@@ -1,36 +1,60 @@
-import pandas as pd
-import numpy as np    
-from sklearn import tree      
-from sklearn.externals.six import StringIO  
-import pydotplus  
-#参数初始化
-inputfile = 'files/modelData/data.xls'    #这里输入你个人的文件路径
-data = pd.read_excel(inputfile, index_col = u'序号') #导入数据
+import numpy as np
+from numpy.random import randn
+import matplotlib.pyplot as plt 
+from matplotlib import gridspec
+def to_percent(y, position):
+    s = str(100 * y)
+    if matplotlib.rcParams['text.usetex'] is True:
+        return s + r'$\%$'
+    else:
+        return s + '%' 
+# generate some data
+x=valid_data[valid_data['weight_or_vol']==True]['diff_rate']
+y = np.sin(x)
 
-#数据是类别标签，要将它转换为数据
-#用1来表示“好”、“是”、“高”这三个属性，用-1来表示“坏”、“否”、“低”
-data[data == u'好'] = 1
-data[data == u'是'] = 1
-data[data == u'高'] = 1
-data[data != 1] = -1
-x = data.iloc[:,:3].as_matrix().astype(int)
-y = data.iloc[:,3].as_matrix().astype(int)
-
-from sklearn.tree import DecisionTreeClassifier as DTC
-dtc = DTC(criterion='entropy') #建立决策树模型，基于信息熵
-dtc.fit(x, y) #训练模型
-
-#导入相关函数，可视化决策树。
-from sklearn.tree import export_graphviz
-x = pd.DataFrame(x)
-#with open("tree.dot", 'w') as f:
-#  f = export_graphviz(dtc, feature_names = x.columns, out_file = f)
-dot_data = StringIO()  
-tree.export_graphviz(dtc,feature_names=x.columns,out_file=dot_data)
-print(dot_data.getvalue())
-graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
-graph.write_pdf("tree.pdf")   
-#'''''准确率与召回率'''  
-#precision, recall, thresholds = precision_recall_curve(y_train, clf.predict(x_train))  
-#answer = clf.predict_proba(x)[:,1]  
-#print(classification_report(y, answer, target_names = ['thin', 'fat']))  
+def plotDist(X):
+    print("sidnsdss是多少")
+    formatter = FuncFormatter(to_percent)
+    plt.figure(figsize=(10, 7)) 
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1,12]) 
+    ax0 = plt.subplot(gs[0])
+    ax0.boxplot(X,vert=False)
+    plt.grid()
+    ax1 = plt.subplot(gs[1])
+    ax1.set_ylabel('diff_rate distribution')
+    ax1.hist(X, bins=40, normed=True,color='g')
+    plt.gca().yaxis.set_major_formatter(formatter)
+    plt.grid()
+    ax2 = ax1.twinx()  # this is the important function
+    ax2.set_ylabel('diff_rate cumulative distribution')
+    plt.gca().yaxis.set_major_formatter(formatter)
+    ax2.hist(X, bins=40, normed=True,color='red',cumulative=True,histtype='step')
+    plt.annotate('Mean : '+format(X.mean(),'.2f')+'', xy=(-90, 1), xytext=(-90, 1))
+    plt.annotate(' Std :' + format(X.std(),'.2f')+'', xy=(-90, 1), xytext=(-90, 0.95))
+    plt.annotate(' Var :' + format(X.var(),'.2f')+'', xy=(-90, 1), xytext=(-90, 0.90))
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+    
+X=x  
+formatter = FuncFormatter(to_percent)
+plt.figure(figsize=(10, 7)) 
+gs = gridspec.GridSpec(2, 1, height_ratios=[1,12]) 
+ax0 = plt.subplot(gs[0])
+ax0.boxplot(X,vert=False)
+plt.grid()
+ax1 = plt.subplot(gs[1])
+ax1.set_ylabel('diff_rate distribution')
+ax1.hist(X, bins=40, normed=True,color='g')
+plt.gca().yaxis.set_major_formatter(formatter)
+plt.grid()
+ax2 = ax1.twinx()  # this is the important function
+ax2.set_ylabel('diff_rate cumulative distribution')
+plt.gca().yaxis.set_major_formatter(formatter)
+ax2.hist(X, bins=40, normed=True,color='red',cumulative=True,histtype='step')
+plt.annotate('Mean : '+format(X.mean(),'.2f')+'', xy=(-90, 1), xytext=(-90, 1))
+plt.annotate(' Std :' + format(X.std(),'.2f')+'', xy=(-90, 1), xytext=(-90, 0.95))
+plt.annotate(' Var :' + format(X.var(),'.2f')+'', xy=(-90, 1), xytext=(-90, 0.90))
+plt.tight_layout()
+plt.show()
+plt.close()
