@@ -51,8 +51,11 @@ def groupBoxPlot(data,valueby='diff_rate',groupby='hosts',top=10):
     st=st.sort_values(by='count',ascending=False)
     names=list(st.iloc[0:top,:].index)
     data_to_plot=[]
+    means=[]
+    #print(names)
     for tp in names:
         data_to_plot.append(np.array(data[data[groupby]==tp][valueby]))
+        means.append(st.loc[tp,'mean'])
         # Create a figure instance
     fig = plt.figure(figsize=(top, 6))
     # Create an axes instance
@@ -64,6 +67,7 @@ def groupBoxPlot(data,valueby='diff_rate',groupby='hosts',top=10):
     ## to get fill color
     plt.grid()
     bp = ax.boxplot(data_to_plot, patch_artist=True)
+    plt.plot(np.linspace(1,len(names),len(names)),means)
     ## change outline color, fill color and linewidth of the boxes
     for box in bp['boxes']:
         # change outline color
@@ -91,18 +95,21 @@ def groupBoxPlot(data,valueby='diff_rate',groupby='hosts',top=10):
 if __name__ == '__main__':
     filePath = "/users/hua/documents/temp/prime_orders/"
     if 'data' not in dir():
-        data=pd.read_csv(r'E:\BaiduYunDownload\prime_orders.csv')
-        #data=pd.read_csv('/users/hua/prime_orders.csv')
+        #data=pd.read_csv(r'E:\BaiduYunDownload\prime_orders.csv')
+        data=pd.read_csv('/users/hua/prime_orders.csv')
         del data['productname'],data['webdomain']
         data['hosts']=data['producturl'].apply(getHost)
         data['max_weight']=data[['weight','volumweight']].max(axis=1)
         data['weight_or_vol']=data['max_weight']==data['weight']
         zero_data=data[(data['max_weight']==0)|(data['chargeweight']==0)]
         data['diff_weight']=(data[['weight','volumweight']].max(axis=1)-data['chargeweight']/1.1)/1000
+        data['diff_weight']=data['diff_weight']/data['qty']
+        data['badflag']=0
         data['diff_rate']=(data[['weight','volumweight']].max(axis=1)*1.1-data['chargeweight'])*100/data['chargeweight']
         norm_data=data[(data['max_weight']>0)&(data['chargeweight']>0)].copy()#
     #data['delivery_month']=data['arrive_date'].apply(lambda x: str(x)[0:7].replace('-',''))
-    #data.loc[data['diff_rate']>500,'diff_rate']=500
+    data.loc[data['diff_weight']>0.5,'badflag']=1
+    #data.groupby(by='hosts').agg({'badflag':{'size','sum'}})
     norm_data.loc[norm_data['diff_weight']>4,'diff_weight']=4
     norm_data.loc[norm_data['diff_weight']<-4,'diff_weight']=-4
     #zero_data_st=zero_data.groupby('hosts')['hosts'].count()
@@ -122,7 +129,7 @@ if __name__ == '__main__':
     print('1、diff_rate<=0% 累计占比60.4% diff_rate<=10% 累计占比88.5% -10%<diff_rate<10% 占比约62%')
     print('2、分布非常对称') 
     x=valid_data[valid_data['weight_or_vol']==True]['diff_weight']
-    plotDist(x,title='按重量',bins_k=20)
+    plotDist(x,title='按重量',bins_k=40)
     plotDist(valid_data[valid_data['weight_or_vol']==False]['diff_weight'],title='按体积重量',bins_k=40)
     #st=valid_data.groupby(by='hosts')['diff_rate'].agg({'counts':'count','means':'mean','stds':'std','medians':'median','percentile80':'describe'})
     #vt=valid_data.groupby(by='hosts')['diff_rate'].describe().unstack()

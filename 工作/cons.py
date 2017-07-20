@@ -5,7 +5,8 @@ import pandas as pd
 #engine= create_engine('mssql+pymssql://publicezbuy:Yangqiang100%@192.168.199.106:1433/ezfinance',echo = True)
 #data = pd.read_sql_query('select top 100000 * from orders ',con= engine)
 def MSSQL106(db='ezfinance'):
-    engine= create_engine('mssql+pymssql://publicezbuy:Yangqiang100%@192.168.199.106:1433/{0}'.format(db))
+    engine= create_engine(r'mssql+pymssql://publicezbuy:Aa123456!@192.168.199.106:1433/{0}'.format(db))
+    #print(r'mssql+pymssql://publicezbuy:Aa123456!%@192.168.199.106:1433/{0}'.format(db))
     return engine;
 def statis():
     engine= create_engine("mysql+pymysql://root:ezbuyisthebest@192.168.199.112:3306/statis?charset=utf8")
@@ -27,6 +28,13 @@ def postgresql():
 if __name__ == '__main__':
     print("run this")
     #redshift()
-    engine=postgresql()
-    sql1='select * from dw.ic_cust limit 100'
-    df = pd.read_sql_query(sql1,con= engine)
+    engine=redshift() #postgresql()
+    sql1="""
+    WbExport -type=text
+         -delimiter=';'
+         -header=true
+         -file='/Users/hua/mytemp1.csv'
+         -table=newtable;
+    select * from dw.ic_cust limit 100"""
+    #df = pd.read_sql_query(sql1,con= engine)
+ 

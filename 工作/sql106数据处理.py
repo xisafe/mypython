@@ -3,43 +3,112 @@ import os
 import pandas as pd
 import cons as cons
 from sqlalchemy import create_engine
-mssql106=cons.MSSQL106('dump20170607')
+mssql106=cons.MSSQL106('dump20170706')
 sql1="""
 SELECT
-	o.OrderId,
-    max(h.CreateDate) StatusDate
-   into #stdate
-FROM
-	[order] AS o (nolock)
-INNER JOIN OrderHistory h (nolock) on o.orderid=h.orderid and h.CreateDate>'2017-01-01'
-where o.OrderStatusId in (14,32,5,20,29,24,7,10,33,23) and o.ArrivedShanghaiDate>'2017-01-01' 
-and o.OriginCode='CN' and  o.updatedate<'2017-05-27'
-and   (o.LocalProductOffsetTotal+LocalProductTotal)*o.FirstPaymentExchange>150 
-group by o.OrderId HAVING max(h.CreateDate)<'2017-05-25'
-
-SELECT
-	o.OrderId,
 	o.OrderNumber,
-    o.OrderStatusId,
-    s.OrderStatusName,
-    o.OrderDate,
-    c.NickName,
-    (o.LocalProductOffsetTotal+LocalProductTotal)*o.FirstPaymentExchange Total_RMB,
-    c.CustomerName,c.CatalogCode,st.StatusDate
+	o.SendToSgDate,
+	o.ArrivedSingporeDate,
+	o.LocalProductTotal,
+	o.LocalProductOffsetTotal,
+	o.LocalGstTotal,
+	o.LocalGstOffset,
+    o.WarehouseCode,
+    o.OriginCode,
+    s.VptNumber,
+    t.ShipmentTypeName,
+    o.PaymentBillId
 FROM
-	[order] AS o (nolock)
-left join OrderStatus s on o.OrderStatusId=s.OrderStatusId
-INNER join Customer c (nolock) on o.customerid=c.customerid and c.CatalogCode in('SG','MY')
-inner join #stdate st on o.OrderId=st.orderid
-where o.updatedate<'2017-05-27' and o.OrderStatusId in (14,32,5,20,29,24,7,10,33,23) and o.ArrivedShanghaiDate>'2017-01-01' and o.OriginCode='CN'
-and   (o.LocalProductOffsetTotal+LocalProductTotal)*o.FirstPaymentExchange>150 
-;
-drop table #stdate;
+	[order] o (nolock)
+inner join Customer c (nolock) on o.CustomerId=c.CustomerId and c.CatalogCode='SG'
+INNER JOIN ShipmentType t ON o.ShipmentTypeId = t.ShipmentTypeId
+LEFT JOIN PackingNumber pn (nolock) ON o.PackingNumberId = pn.PackingNumberId
+LEFT JOIN LogisticsShipping s (nolock) ON pn.LogisticsShippingId = s.LogisticsShippingId
+WHERE o.OriginCode in('CN','US') and
+	o.SendToSgDate > '2017-05-01'
+AND o.SendToSgDate < '2017-07-01'
+union all
+SELECT
+	o.OrderNumber,
+	o.SendToSgDate,
+	o.ArrivedSingporeDate,
+	o.LocalProductTotal,
+	o.LocalProductOffsetTotal,
+	o.LocalGstTotal,
+	o.LocalGstOffset,
+    o.WarehouseCode,
+    o.OriginCode,
+    s.VptNumber,
+    t.ShipmentTypeName,
+    o.PaymentBillId
+FROM
+	dumpeznearline20170706.dbo.[order] o (nolock)
+inner join Customer c (nolock) on o.CustomerId=c.CustomerId and c.CatalogCode='SG'
+INNER JOIN ShipmentType t ON o.ShipmentTypeId = t.ShipmentTypeId
+LEFT JOIN PackingNumber pn (nolock) ON o.PackingNumberId = pn.PackingNumberId
+LEFT JOIN LogisticsShipping s (nolock) ON pn.LogisticsShippingId = s.LogisticsShippingId
+WHERE o.OriginCode in('CN','US') and
+	o.SendToSgDate > '2017-05-01'
+AND o.SendToSgDate < '2017-07-01'
  """
-data = pd.read_sql_query(sql1,con= mssql106)
-data=data[data.StatusDate<'2017-05-25']
-data.to_excel('/users/hua/no_orders.xlsx',index=False)
-
-#sql1="""select  * from [order] as o where orderdate>'2017-06-01' and purchasetype='ezbuy'  and completedate>'2017-01-01' """
-#data = pd.read_sql_query(sql1,con= mssql106)
-#data.to_excel('/users/hua/orders.xlsx')
+sql2="""
+SELECT
+	o.OrderNumber,
+	o.SendToSgDate,
+	o.ArrivedSingporeDate,
+	o.LocalProductTotal,
+	o.LocalProductOffsetTotal,
+	o.LocalGstTotal,
+	o.LocalGstOffset,
+    o.WarehouseCode,
+    o.OriginCode,
+    s.VptNumber,
+    t.ShipmentTypeName,pn.packingcode,
+    o.PaymentBillId
+FROM
+	[order] o (nolock)
+inner join Customer c (nolock) on o.CustomerId=c.CustomerId and c.CatalogCode='SG'
+INNER JOIN ShipmentType t ON o.ShipmentTypeId = t.ShipmentTypeId
+LEFT JOIN PackingNumber pn (nolock) ON o.PackingNumberId = pn.PackingNumberId
+LEFT JOIN LogisticsShipping s (nolock) ON pn.LogisticsShippingId = s.LogisticsShippingId
+WHERE o.OriginCode in('CN','US') and
+	o.SendToSgDate > '2017-06-01'
+AND o.SendToSgDate < '2017-07-01'
+union all
+SELECT
+	o.OrderNumber,
+	o.SendToSgDate,
+	o.ArrivedSingporeDate,
+	o.LocalProductTotal,
+	o.LocalProductOffsetTotal,
+	o.LocalGstTotal,
+	o.LocalGstOffset,
+    o.WarehouseCode,
+    o.OriginCode,
+    s.VptNumber,
+    t.ShipmentTypeName,pn.packingcode,
+    o.PaymentBillId
+FROM
+	dumpeznearline20170706.dbo.[order] o (nolock)
+inner join Customer c (nolock) on o.CustomerId=c.CustomerId and c.CatalogCode='SG'
+INNER JOIN ShipmentType t ON o.ShipmentTypeId = t.ShipmentTypeId
+LEFT JOIN PackingNumber pn (nolock) ON o.PackingNumberId = pn.PackingNumberId
+LEFT JOIN LogisticsShipping s (nolock) ON pn.LogisticsShippingId = s.LogisticsShippingId
+WHERE o.OriginCode in('CN','US') and
+	o.SendToSgDate > '2017-06-01'
+AND o.SendToSgDate < '2017-07-01'
+""" 
+if 'package' not in dir():
+    package= pd.read_sql_query(sql2,con= mssql106)
+#if 'bills' not in dir():
+    #bills= pd.read_sql_query(sql2,con= mssql106)
+    #bill2=bills.drop_duplicates()
+package.to_excel('/users/hua/orderdata_gst201706.xlsx')
+#billgroup=orders.groupby(by='PaymentBillId').agg({'LocalProductTotal':'sum'})
+#billgroup=billgroup.merge(bill2,how='left',left_index=True,right_on='PaymentBillId')
+#billgroup=billgroup.fillna(0)
+#billgroup.columns=['sumProductTotal', 'PaymentBillId', 'yunfei']
+#orders=orders.merge(billgroup,how='left',left_on='PaymentBillId',right_on='PaymentBillId')
+#orders['ratio']=orders['LocalProductTotal']/orders['sumProductTotal']
+#orders['p']=orders['ratio']*orders['yunfei']
+#orders['p2']=orders['LocalProductTotal']**orders['yunfei']/orders['sumProductTotal']
