@@ -1,58 +1,34 @@
-import matplotlib
-from numpy.random import randn
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-
-
-def to_percent(y, position):
-    # Ignore the passed in position. This has the effect of scaling the default
-    # tick locations.
-    s = str(100 * y)
-
-    # The percent symbol needs escaping in latex
-    if matplotlib.rcParams['text.usetex'] is True:
-        return s + r'$\%$'
-    else:
-        return s + '%'
-
-x = randn(5000)
-
-# Make a normed histogram. It'll be multiplied by 100 later.
-
-
-# Create the formatter using the function to_percent. This multiplies all the
-# default labels by 100, making them all percentages
-plt.hist(x, bins=50, normed=True)
-formatter = FuncFormatter(to_percent)
-plt.gca().yaxis.set_major_formatter(formatter)
-plt.show()
-# Set the formatter
-
-import matplotlib.pyplot as plt
 import numpy as np
-x = np.arange(0., np.e, 0.01)
-y1 = np.exp(-x)
-y2 = np.log(x)
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
-ax1.plot(x, y1)
-ax1.set_ylabel('Y values for exp(-x)')
-ax1.set_title("Double Y axis")
-ax2 = ax1.twinx()  # this is the important function
-ax2.plot(x, y2, 'r')
-ax2.set_xlim([0, np.e])
-ax2.set_ylabel('Y values for ln(x)')
-ax2.set_xlabel('Same X for both exp(-x) and ln(x)')
-plt.show()
-plt.close()
+import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
-
-nx = 1
-ny = 4
-
-dxs = 8.0
-dys = 6.0
-
-fig, ax = plt.subplots(ny, nx, sharey = True)
-for i in range(nx):
-    ax[i].plot([1, 2], [1, 2])
+import pandas as pd
+def dataDesc(data,isclass_ratio=0.05):   #数据的基础信息展示
+    var_types= pd.DataFrame(data.dtypes,columns=['v_types'])
+    var_types['flag']=var_types['v_types'].apply(lambda x:('float' in str(x)) or ('int' in str(x)) or ('ouble' in str(x)))  
+    obj_features=data[var_types[var_types['flag']==False].index]
+    num_desc=data.describe().T
+    if obj_features.shape[1]>0:
+        obj_desc=obj_features.describe().T
+        rs=pd.concat([obj_desc,num_desc])
+        rs=rs[['min','25%','50%','75%','max','mean','std','count','unique','Mode','Mode_freq' ]]
+    rs=num_desc.copy()
+    rs=rs[['min','25%','50%','75%','max','mean','std','count' ]]                      
+    rs['miss_ratio']=1-rs['count']/data.shape[0]
+    #rs.loc[:,'missing']=1-rs.loc[:,'count']/data.shape[0]
+    for num in var_types[var_types['flag']==True].index:
+        st=data[num].value_counts()
+        rs.at[num,'unique']=st.shape[0]
+        if st.shape[0]>0:
+            rs.at[num,'Mode']=st.index[0]
+            rs.at[num,'Mode_freq']=st.values[0]
+    rs['unique_ratio']=rs['unique']/data.shape[0]
+    rs['class_type']='连续'
+    rs.loc[rs['unique_ratio']<isclass_ratio,'class_type']='分类'
+    del rs['unique_ratio']
+    return rs 
+if __name__=='__main__':
+    mydata=pd.read_csv('/users/hua/downloads/cs-training.csv')
+    del mydata['ids']
+    #mydata.columns=['y','x1','x2','x3','x4','x5','x6','x7','x8','x9','x10']
+    desc=dataDesc(mydata)
+    

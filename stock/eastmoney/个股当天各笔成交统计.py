@@ -65,9 +65,9 @@ def getBigVol(df):
     #plt.xticks(range(df.shape[0]),range(df.shape[0]))
     plt.margins(0)
     plt.show()
-    #return sumt   #    
-stockcode='600866'
-vol=100
+    #return sumt   # 601005   
+stockcode='601005'
+vol=700
 op=getDealVol(stockcode,vol)
 getBigVol(op)
 #today=ts.get_today_ticks(stockcode)

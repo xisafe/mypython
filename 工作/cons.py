@@ -36,5 +36,5 @@ if __name__ == '__main__':
          -file='/Users/hua/mytemp1.csv'
          -table=newtable;
     select * from dw.ic_cust limit 100"""
-    #df = pd.read_sql_query(sql1,con= engine)
+    df = pd.read_sql_query(sql1,con= engine)
  
