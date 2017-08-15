@@ -72,6 +72,28 @@ def show_var_dist_plot(mydata,bins_k=20):
     for var in mydata.columns:
         tp=mydata[mydata[var]<mydata[var].mean()+10*mydata[var].std()][var]
         plotDist(tp,title=var,bins_k=bins_k)
+def showCluster(dataSet, k, centroids, clusterAssment):  
+    numSamples, dim = dataSet.shape  
+    if dim != 2:  
+        print("Sorry! I can not draw because the dimension of your data is not 2!")
+        return 1  
+  
+    mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr']  
+    if k > len(mark):  
+        print("你的聚类多余10组，系统无法展示")  
+        return 1  
+  
+    # draw all samples  
+    for i in range(numSamples):  
+        markIndex = int(clusterAssment[i])  
+        plt.plot(dataSet[i, 0], dataSet[i, 1], mark[markIndex])  
+  
+    mark = ['Dr', 'Db', 'Dg', 'Dk', '^b', '+b', 'sb', 'db', '<b', 'pb']  
+    # draw the centroids  
+    for i in range(k):  
+        plt.plot(centroids[i, 0], centroids[i, 1], mark[i], markersize = 12)  
+    plt.show()
+      
 if __name__=='__main__':
     mydata=pd.read_csv('/users/hua/downloads/cs-training.csv') #,na_values='NULL'
     del mydata['ids']
@@ -79,5 +101,11 @@ if __name__=='__main__':
     #mydata.columns=['y','x1','x2','x3','x4','x5','x6','x7','x8','x9','x10'] MonthlyIncome
     desc=dataDesc(mydata)
     mydata=miss_data_process(mydata)
-    show_var_dist_plot(mydata,bins_k=20)
+    #m=pd.Dataframe(pd.cut(mydata.age,bins=30))
+    from sklearn.cluster import KMeans
+    tp=pd.DataFrame(mydata['age']).copy()
+    tp['zeros']=0
+    X=np.array(tp)
+    kmeans = KMeans(n_clusters=9, random_state=0).fit(X)
+    #showCluster(X,k=9,centroids=kmeans.cluster_centers_,clusterAssment=np.array(kmeans.labels_))  
     #plotDist(mydata['NumberOfDependents'],title='NumberOfDependents',bins_k=20)

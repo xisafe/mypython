@@ -1,4 +1,4 @@
-import xlwings as xw
+﻿import xlwings as xw
 import pandas as pd
 import os
 from sqlalchemy import create_engine
@@ -13,5 +13,3 @@ def getData(bdate='2017-04-01',edate='2017-05-30'):
     data2 = pd.read_sql_query(sql,con= engine)
     data2.to_excel(workdir+'/out.xlsx',index=False)
     outfile=xw.Book(workdir+'/out.xlsx')
-    
- 
