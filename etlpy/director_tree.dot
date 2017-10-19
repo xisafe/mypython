@@ -1,0 +1,204 @@
+strict digraph  {
+	graph [epsilon=0.001];
+	node [shape=square,
+		style=filled
+	];
+	"E:\sljr\project\5-开发文档\Script\hive
+0" -> "E:\sljr\project\5-开发文档\Script\hive\bin
+4096";
+	"E:\sljr\project\5-开发文档\Script\hive
+0" -> "E:\sljr\project\5-开发文档\Script\hive\cfg
+4096";
+	"E:\sljr\project\5-开发文档\Script\hive
+0" -> "E:\sljr\project\5-开发文档\Script\hive\sql
+4096";
+	"E:\sljr\project\5-开发文档\Script\hive
+0" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\cdi_area_daily.sh
+92";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\dim_cust_map_daily.sh
+97";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\email_list.sh
+320";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\fact_acct_info_daily.sh
+100";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\fact_acct_trans_daily.sh
+100";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\fact_ordr_borrow_dtl_daily.sh
+106";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\fact_ordr_rechg_dtl_daily.sh
+104";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\hiveUdf.jar
+30621";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\hive_sql_handler_v1.0.ksh
+12744";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sendMail1.7.jar
+706510";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_bdgl.sh
+80";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_fkxt.sh
+72";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_fkxt_inc.sh
+157";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_handler_v1.0.ksh
+6037";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_handler_v1.1.ksh
+10930";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_jrxj.sh
+1123";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_lyxt.sh
+83";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_slsw.sh
+1644";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_swzn.sh
+291";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_test.sh
+200";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_xfqz.sh
+1155";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_zfxt.sh
+275";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\sqoop_zfxt_inc.sh
+87";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\subject_cust_daily.sh
+97";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\subject_dims_daily.sh
+97";
+	"E:\sljr\project\5-开发文档\Script\hive\bin
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\bin\subject_orders_daily.sh
+284";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\cdi_area_daily.properties
+213";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\dim_cust_map_daily.properties
+331";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\fact_acct_info_daily.properties
+278";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\fact_acct_trans_daily.properties
+264";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\fact_ordr_borrow_dtl_daily.properties
+291";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\fact_ordr_rechg_dtl_daily.properties
+299";
+	"E:\sljr\project\5-开发文档\Script\hive\cfg
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\cfg\sqoop_handler.properties
+2586";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\cdi_area_daily.sql
+792";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\dim_cust_map_daily.sql
+9155";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\fact_acct_info_daily.sql
+1119";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\fact_acct_trans_daily.sql
+3148";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\fact_ordr_borrow_dtl_daily.sql
+3240";
+	"E:\sljr\project\5-开发文档\Script\hive\sql
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\sql\fact_ordr_rechg_dtl_daily.sql
+3619";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\CDI.sql
+52768";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\com_hive.sql
+4435";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\com_hive_inc.sql
+4337";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\coo_hive.sql
+1996";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\coo_hive_inc.sql
+1938";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\dc_data_maintain_hive.sql
+2508";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\dc_data_maintain_hive_inc.sql
+2450";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\java_xingfuqianzhuang_hive.sql
+21605";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\java_xingfuqianzhuang_hive_inc.sql
+21235";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\jrxj_loan_overdue_info.sql
+1139";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\jrxj_loan_overdue_info_inc.sql
+1121";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_borrow_hive.sql
+975";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_borrow_hive_inc.sql
+957";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_jrxj_hive.sql
+16290";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_jrxj_hive_inc.sql
+16013";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_payment_hive.sql
+10795";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_payment_hive_inc.sql
+10655";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_pay_rout_hive.sql
+902";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_pay_rout_hive_inc.sql
+883";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_risk_hive.sql
+1957";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_risk_hive_inc.sql
+1923";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_slsw_hive.sql
+25078";
+	"E:\sljr\project\5-开发文档\Script\hive\table_ddl
+4096" -> "E:\sljr\project\5-开发文档\Script\hive\table_ddl\sljr_slsw_hive_inc.sql
+24680";
+}

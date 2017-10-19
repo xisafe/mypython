@@ -1,47 +1,45 @@
-import math
-import os
+from datetime import datetime,timedelta
 import pandas as pd
-from sqlalchemy import create_engine
-# 遍历指定目录，显示目录下的所有文件名
-def eachFile(filepath):
-    checked=pd.DataFrame(columns=['payment_number','last_total'])
-    pathDir =  os.listdir(filepath)
-    for allDir in pathDir:
-        child = os.path.join('%s/%s' % (filepath, allDir))
-        if ".xls" in(child):
-            print(child) # .decode('gbk')是解决中文显示乱码问题
-            data=pd.read_excel(child)
-            data.columns=data.columns.str.strip()
-            checked=pd.concat([checked,data[['交易号','总额']]])
-    checked=checked.drop_duplicates()
-    checked.to_csv('/users/hua/checked.csv')        
-    return checked
+import urllib
+def get_day_type(query):  
+    """ 
+    @query a single date: string eg."20160404" 
+    @return day_type: 0 workday -1 holiday 
+    20161001:2 20161002:2 20161003:2 20161004:1  
+    """    
+    url = 'http://www.easybots.cn/api/holiday.php?d=' + query   
+    req = urllib.request.Request(url)  
+    resp = urllib.request.urlopen(req)  
+    content = resp.read()
+    return content;
+dim_date=pd.DataFrame()
+dates=pd.date_range('2001/1/1','2099/12/31',freq='D') #data generation
+dim_date['dt_dt']=dates
 
-if __name__ == '__main__':
-    filePath = "/users/hua/documents/temp/jiehui2015-checkout"
-    #checked.columns=['payment_number','last_total']
-    #data=pd.read_excel("/users/hua/documents/jiehui2015.xlsx")
-    data['delivery_month']=data['delivery_date'].apply(lambda x: x[0:7])
-    catalog=list(pd.unique(data['catalog_code']))
-    catalog.remove('AU')
-    months=list(pd.unique(data['delivery_month']))
-    for c in catalog:
-        for m in months:
-            tp=data[(data['catalog_code']==c)&(data['delivery_month']==m)]
-            print(len(tp),math.ceil(len(tp)/15000))
-            for i in range(math.ceil(len(tp)/15000)):
-                xname='/users/hua/documents/temp/jiehui_cq_2015/'+c+'_'+m.replace("-","")+'_'+str(i)+'.xlsx'
-                print(xname)
-                out=tp.iloc[i*15000:(i+1)*15000-1]
-                writer = pd.ExcelWriter(xname, engine='xlsxwriter',options={'strings_to_urls': False})
-                out.to_excel(writer,index=False)
-                writer.close()
-                print(out.shape)
-            
-    #maindata=data.copy()
-    #data3=data.join(checked,on='payment_number',how='inner',rsuffix='last-')
-    #engine= create_engine('mssql+pyodbc://publicezbuy:Yangqiang100%@192.168.199.106:1433/ezfinance',echo = True)
-    #y=pd.read_excel("/users/hua/documents/temp/jiehui2015-checkout/外汇结汇包裹201504-1000新币包裹.xlsx")
-    #checked=eachFile(filePath)
-    #readFile(filePath)
-    #writeFile(filePathI)publicezbuy
+dim_date['dt_key']=dates.strftime('%Y%m%d')
+dim_date['wk_str']=dim_date['dt_key'].apply(lambda x:get_day_type(x))
+dim_date['dt_year']=dates.year
+dim_date['dt_year_month']=dates.strftime('%Y%m')
+dim_date['dt_month_frst_day']=''
+dim_date['dt_month_last_day']=''
+dim_date['dt_month_en_desc']=''
+dim_date['dt_month_cn_desc']=''
+dim_date['dt_day']=''
+dim_date['dt_quarter']=''
+dim_date['dt_week']=''
+dim_date['dt_week_frst_day']=''
+dim_date['dt_week_last_day']=''
+dim_date['dt_week_en_desc']=''
+dim_date['dt_week_cn_desc']=''
+dim_date['dt_month_week']=''
+dim_date['dt_year_week']=''
+dim_date['dt_year_day']=''
+dim_date['dt_wenkend_flag']=''
+dim_date['dt_workday_flag']=''
+dim_date['dt_hldy_flag']=''
+dim_date['dt_hldy']=''
+
+
+
+
+#date2 = pd.date_range(start='5/1/2017',end='6/1/2017',freq='W-MON') #从5月1日到6月1日，每周的周一

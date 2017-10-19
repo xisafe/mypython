@@ -1,13 +1,10 @@
-import pandas as pd 
-dt=pd.read_csv('/users/hua/prime_customer.csv')
-catalog=list(pd.unique(dt['cust_ctry_cd']))
-months=list(pd.unique(dt['dtype']))
-for c in catalog:
-    for m in months:
-        tp=dt[(dt['cust_ctry_cd']==c)&(dt['dtype']==m)]
-        xname='/users/hua/documents/temp/'+m+'_'+c+'.xlsx'
-        print(xname)
-        writer = pd.ExcelWriter(xname, engine='xlsxwriter',options={'strings_to_urls': False})
-        tp.to_excel(writer,index=False)
-        writer.close()
-#dt.to_excel('/users/hua/prime_customer修改后.xlsx')
+from impala.dbapi import connect
+#需要注意的是这里的auth_mechanism必须有，但database不必须
+conn = connect(host='192.168.190.14', port=10000, database='default', auth_mechanism='PLAIN')
+cur = conn.cursor()
+
+cur.execute('SHOW DATABASES')
+print(cur.fetchall())
+
+cur.execute('SHOW Tables')
+print(cur.fetchall())
