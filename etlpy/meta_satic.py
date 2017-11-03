@@ -260,7 +260,20 @@ def get_crontab(st):
             return '每日 '+times
     else:
         return ''
-    
+
+def re_run():
+    engine=cons.meta('hive')
+    sql_txt="""
+           SELECT * FROM `etl错误任务视图`
+           where start_time<CONCAT(CURRENT_DATE(),' 08:00:00');
+            """
+    err_df=pd.read_sql(sql_txt,engine)
+    if err_df.shape[0]>0:
+        pass
+    else:
+        print('没有错误作业')
+    return err_df
+
 if __name__ == '__main__':  
 
     cfg_rs=readConf(main_path+'/cfg') #读取配置文件

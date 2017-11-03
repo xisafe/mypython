@@ -64,7 +64,7 @@ class conn:
         tar_path='f:/home/bigdata/python/hive/ddl/'
         src_db=dbmap[db]
         db=db[0:4]
-        is_success=0
+        is_success=1
         #etl_con=conn.meta('etl_data')
         ddl_file = open('f:/home/bigdata/python/hive/ddl.sql', 'w+',encoding='utf-8')
         engine=conn.sljr_mysql('information_schema')

@@ -2,21 +2,15 @@ import os
 import time
 import datetime
 import paramiko
-from etlpy.cons import conn as cons
-root_path='F:/home/bigdata/python' 
+import confs
+from cons import conn as cons
+root_path=confs.main_path_py 
 key_file=root_path+'/cfg/id_rsa' #秘钥路径
 log_path=root_path+'/log/' #日志路径
-tar_path='/home/bigdata/python/upload' #目标路径
-bakup_path='/home/bigdata/python/bakup/' #远程备份目录
+tar_path=confs.remote_path_py+'upload' #目标路径
+bakup_path=confs.remote_path_py+'bakup/' #远程备份目录
 today=time.strftime('%Y%m%d',time.localtime())
-
-class Logger(object):
-    '''模拟日志类。方便单元测试。'''
-    def __init__(self):
-        self.info = self.error = self.critical = self.debug
-    def debug(self, msg):
-        print("LOGGER:"+msg)
-        
+    
 class SSH(object):
     def __init__(self):
         try:
@@ -51,7 +45,7 @@ class SSH_cmd(object):
     def __init__(self,ssh):
         self.ssh=ssh
         self.sftp=ssh.open_sftp()
-        self.logger = Logger()
+        #self.logger = Logger()
     def file_exist(self,path): #远程文件是否存在
         try:
             self.sftp.stat(path)
@@ -81,10 +75,13 @@ class SSH_cmd(object):
         file_object.close()
     def upload(self,local_dir,remote_dir): #文件或者文件夹上传
         local_dir=local_dir.replace('\\','/')
-        if 'bigdata/python/upload'  in remote_dir or 'bigdata/python/hive'  in remote_dir:
+        if not os.path.exists(local_dir):
+            print(local_dir,'不存在')
+            return 0
+        if 'home/bigdata' in remote_dir: 
             try:  
                 sftp=self.sftp 
-                if os.path.isdir(local_dir): #同步文件夹
+                if os.path.isdir(local_dir) and ('python/upload'  in remote_dir or 'python/hive'  in remote_dir): #同步文件夹
                     if self.file_exist(remote_dir)==0: #判断目录是否存在
                         sftp.mkdir(remote_dir)
                     else:
@@ -92,7 +89,6 @@ class SSH_cmd(object):
                             self.file_exist(remote_dir) #需要对目录信息刷新
                             sftp.mkdir(remote_dir)
                     for root,dirs,files in os.walk(local_dir):  
-                        #print('文件 [%s][%s][%s]' % (root,dirs,files))
                         #同步目录
                         for name in dirs:
                             local_path = os.path.join(root,name).replace('\\','/')  
@@ -112,37 +108,47 @@ class SSH_cmd(object):
                             remote_file = os.path.join(remote_dir,a).replace('\\','/') 
                             #print(22,remote_file,local_file)  
                             try: 
-                                print('上传：',local_file)
+                                #print('上传：',local_file)
                                 sftp.put(local_file,remote_file)  
+                                self.cmd_run(["sed -i 's/\r//g' "+remote_file])
                             except Exception as e:
                                 up_dir=os.path.split(remote_file)[0]
                                 print("上级目录不存,创建上级目录:",up_dir)
                                 sftp.mkdir(up_dir)  
-                                sftp.put(local_file,remote_file)  
+                                sftp.put(local_file,remote_file)
+                                self.cmd_run(["sed -i 's/\r//g' "+remote_file])
                                 #print("66 upload %s to remote %s" % (local_file,remote_file))  
-                else:
+                elif os.path.isfile(local_dir):
                     if self.file_exist(remote_dir)>0: #判断目录是否存在
                         if self.file_bakup(remote_dir)>0:
                                 self.file_exist(remote_dir) #需要对目录信息刷新
                     try:  
-                        print('上传：',local_dir)
+                        print('上传：',os.path.split(local_dir)[1])
                         sftp.put(local_dir,remote_dir)  
+                        self.cmd_run(["sed -i 's/\r//g' "+remote_dir])
+                        self.download(remote_dir,local_dir)
                     except Exception as e:
                         up_dir=os.path.split(remote_file)[0]
                         print("上级目录不存,创建上级目录:",up_dir)
                         sftp.mkdir(up_dir)  
-                        sftp.put(local_dir,remote_dir)             
-                print('上传完成')
+                        sftp.put(local_dir,remote_dir)
+                        self.cmd_run(["sed -i 's/\r//g' "+remote_dir])
+                        self.download(remote_dir,local_dir)
+                else:
+                    print('文件夹上传只能上传到upload或者hive上')
+                    return 0
+                #print('上传完成')
                 return 1
             except Exception as e:  
                 print('上传错误提示：',str(e))  
                 return 0
         else:
-            print('ERROR: 只能对/home/bigdata/python/upload进行操作')
+            print('ERROR: 只能对/home/bigdata/进行操作')
             return 0
     
     def cmd_run(self,cmd,if_print=1): #执行命令列表，if_print=1表示打印日志
         logs=time.strftime('%Y%m%d_%H%M%S',time.localtime())
+        is_success=1
         if os.path.exists(log_path):
             logs=log_path+logs
         else:
@@ -152,38 +158,48 @@ class SSH_cmd(object):
             for m in range(max_num):
                 begin_time=time.time()
                 print('开始执行第',m+1,'条_共',max_num,'条_完成比例:',round(100*(m+1)/max_num,2))
+                print('命令：',cmd[m])
                 stdin, stdout, stderr = self.ssh.exec_command(cmd[m]) 
                 out=stderr.readlines()
                 channel = stdout.channel
                 status = channel.recv_exit_status()
                 #print(status,'stayus')
                 if status>0:
-                    print('命令执行错误：')
                     for o in out:
                         print(o)
                     self.save_file(logs+'_'+str(m).zfill(3)+'.log',out)
-                else:
-                    out = stdout.readlines()
-                    if if_print>0:
-                        for o in out:
-                            print(o)
+                    is_success=0
+                    print('\033[1;37;45m ERROR: 命令执行错误  \033[0m')
+                out = stdout.readlines()
+                if if_print>0:
+                    for o in out:
+                        print(o)
                 print('用时：',round(time.time()-begin_time,2))
                 self.save_file(logs+'_'+str(m).zfill(3)+'.log',out)
-            print ('\tssh 执行完成 \n')
+            #print ('\tssh 执行完成 \n')
         except Exception as e :
             print ('\n\t 连接错误:\t',str(e))
+        return is_success
         
     def hive_ddl(self,db,tb_list,sqlfile='/home/bigdata/python/hive/ddl.sql'):
         try:
             if cons.get_hive_dml(db,tb_list)>0:
-                if self.upload('F:'+sqlfile,sqlfile)>0:
+                if self.upload(confs.main_path_py+'hive/ddl.sql',sqlfile)>0:
+                    print('命令上传成功')
                     cmd = ["hive -f "+sqlfile]#你要执行的命令列表
                     self.cmd_run(cmd,if_print=1)
+                    return 1
+            else:
+                print('hive ddl表语句生成失败')
+                return 0
         except Exception as e :
             print ('\n\t 创建表错误:\t',str(e))
+            return 0
+    
     def close(self):
         self.ssh.close()
-        
+    def download(self,fromfiles,tofiles):
+        self.sftp.get(fromfiles,tofiles)
     def sqoop_import(src_tb,tar_tb):
         cmd="""sqoop import --connect jdbc:mysql://rr-uf6j7j02i75dxe651o.mysql.rds.aliyuncs.com:3306/sljr_risk  
                --username dc_select  
@@ -192,14 +208,13 @@ class SSH_cmd(object):
            
 
     
-
-    
 if __name__=='__main__':
      ssh=SSH()
      cmd_list=['pad','env','java']
      ssh_cmd=SSH_cmd(ssh.ssh_uat)
-     ssh_cmd.file_exist('/home/bigdata/python/hive/') #文件是否存在
+     #ssh_cmd.file_exist('/home/bigdata/python/hive/') #文件是否存在
      #ssh_cmd.file_bakup('/home/bigdata/python/hive/')
-     ssh_cmd.upload('F:/python/hive/ddl.sql','/home/bigdata/python/hive/ddl.sql')
-     ssh_cmd.cmd_run(cmd_list,if_print=1)
+     ssh_cmd.upload('E:/sljr/project/5-开发文档/Script/hive/python/hive/ddl.sql','/home/bigdata/python/hive/ddl.sql')
+     #ssh_cmd.cmd_run(cmd_list,if_print=1)
+     ssh_cmd.close()
   

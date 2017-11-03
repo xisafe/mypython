@@ -1,26 +1,35 @@
 import os
 import time
-import datetime
-import paramiko
-key_file='f:/ssh/id_rsa'
-log_path='f:/ssh/log'
-def sftp_upload_file(server_path, local_path):
-    ip='192.168.190.11'
-    username ="bigdata"  #用户名
-    try:
-        t = paramiko.Transport((ip, 22))
-        t.connect(username=username)
-        sftp = paramiko.SFTPClient.from_transport(t)
-        print('upload file start %s ' % datetime.datetime.now())
-        sftp.put(local_path, server_path,password='Sh@nlin1234')
-        print('77,upload file success %s ' % datetime.datetime.now())
-        t.close()
-    except Exception as e:
-        print(e)
-        
+import pandas as pd
+from myworks.cons import conn as cons
+#main_path='E:/sljr/project/5-开发文档/Script/hive/'
+main_path='/home/bigdata/'
+#以下为最终结果对应的中文名字
+now = time.time()
+today=time.strftime('%Y-%m-%d',time.localtime(now))
+yesterday=time.strftime('%Y-%m-%d',time.localtime(now - 24*60*60))
 
+def re_run():
+    engine=cons.meta('hive')
+    sql_txt="""
+           SELECT * FROM etl_data.etl错误任务视图
+           where 错误标示='error' and start_time<CONCAT(CURRENT_DATE(),' 08:00:00');
+            """
+    err_df=pd.read_sql(sql_txt,engine)
+    if err_df.shape[0]>0:
+        pass
+    else:
+        print('没有错误作业')
+    return err_df
+
+if __name__ == '__main__':  
+    r=re_run()
+
+    
+    
+      
+    
+             
+                 
         
-if __name__=='__main__':
-    #cmd = [ 'echo "hehf"' ]#你要执行的命令列表
-    sftp_upload_file('E:/collection_hive.sql', '/home/bigdata/python/temp/collection_hive.sql')
-  
+    

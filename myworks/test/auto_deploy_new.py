@@ -1,38 +1,17 @@
 import os
 import time
 import pandas as pd
-from  cons import conn as cons
+from  cons import conn as conn
 import confs
+import pymysql
 main_path=confs.main_path
 
 #以下为最终结果对应的中文名字
 now = time.time()
+specia_list=['dim_cust_map'] #特殊依赖表
 today=time.strftime('%Y-%m-%d',time.localtime(now))
 yesterday=time.strftime('%Y-%m-%d',time.localtime(now - 24*60*60))
-cols_cn_map={'db_name':'数据库', 
-         'tb_name':'表名', 
-         'create_time':'表创建时间', 
-         'row_num':'表行数', 
-         'total_size':'表空间大小',
-         'comments':'表备注',
-         'last_ddl_time':'表上次操作时间', 
-         'part_name':'表最近分区',
-         'sh_files':'表对应shell文件', 'sh_cmd':'表对应命令',
-         'job_type':'作业类型', 'inc_flag':'增量标识', 
-         'sql_file':'表对应sql文件', 
-         'sql_tb_cn':'表对应sql中文名称', 
-         'create_by':'表对应sql创建人',
-         'cfg_denpend':'表对应ETL依赖配置', 
-         'cfg_target_tb':'表ETL完成后生成结果文件', 
-         'job_name':'在oozie中配置的作业',
-         'job_last_time':'上次执行完成时间',
-         'job_next_time':'下次执行时间',
-         'job_used_times':'表对应etl上次用时秒',
-         'frequency':'执行频率',
-         'run_rank':'执行顺序',
-         'rerun_sh':'重跑命令',
-         'run_time':'执行时间安排'
-            }
+
 #插入mysql的字段顺序
 insert_cols=['db_name', 'tb_name', 'create_time', 'row_num', 'total_size',
        'comments', 'last_ddl_time', 'part_name', 'sh_files', 'sh_cmd',
@@ -187,7 +166,7 @@ def readSql(path):
                     print (files,'\t error :\t\t',str(e))     
     return tables_list
 def getOozie():
-    oozie=cons.meta('oozie')
+    oozie=conn.meta('oozie')
     sql_txt="""
             SELECT
             	ifnull(w.app_name, c.app_name) job_name,
@@ -206,7 +185,7 @@ def getOozie():
     oz_df=pd.read_sql(sql_txt,oozie)
     return oz_df
 def getHive():
-    engine=cons.meta('hive')
+    engine=conn.meta('hive')
     sql_txt="""
             SELECT 
                 d.`NAME` db_name,
@@ -251,14 +230,7 @@ def getHive():
             """
     oz_df=pd.read_sql(sql_txt,engine)
     return oz_df
-def cols_to_cn(cols):
-    cols_cn=[]
-    for c in cols:
-        if c in cols_cn_map.keys():
-            cols_cn.append(cols_cn_map[c])
-        else:
-            cols_cn.append(c)
-    return cols_cn      
+
 def get_crontab(st):
     if pd.notnull(st):
         tp=st.split(' ')
@@ -273,65 +245,131 @@ def get_crontab(st):
             return '每日 '+times
     else:
         return ''
-    
-if __name__ == '__main__':  
+def depd_is_all_sdd(depd_list):
+    for tp in depd_list:
+        if tp[0:4] not in confs.db_map.keys():
+            return 0
+        if tp in specia_list:
+            return 0
+    return 1
 
+def group_sh(groups_num=10,frency='d'):
+    if frency in ['d','w','m']: #d 表示天 w 表示zhou m表示月
+        group_name=frency+'_run_group'
+        group_map={}
+        group_sql={}
+        for i in range(groups_num):
+            group_file=group_name+str(i+1).zfill(2)+'.sh'
+            filepath=confs.main_path_bin+group_file
+            #print(filepath)
+            #if not os.path.exists(filepath):
+                    #print(confs.main_path+'bin/template.sh',os.path.exists(confs.main_path+'bin/template.sh'))
+            open(filepath, "wb").write(open(confs.main_path+'bin/template.sh', "rb").read())
+            group_map[i+1]=group_file
+            group_sql[i+1]=[]
+        return group_map, group_sql
+    else:
+        print('frency 参数能是 d(天),w(周),m(月) ')
+def get_job_group():
+    engine=conn.meta('etl_data')
+    sql_txt="""
+            SELECT * FROM  job_group_set;
+            """
+    job_group=pd.read_sql(sql_txt,engine)
+    return job_group
+            
+if __name__ == '__main__':  
+    gp_map,gp_sql=group_sh()
+    freq_type='d'
     cfg_rs=readConf(main_path+'/cfg') #读取配置文件
     sh_rs=readShell(main_path+'/bin') #读取执行文件shell
     sql_rs=readSql(main_path+'/sql') # 读取sql文件
-    log_rs=readlogs(main_path+'/log/'+today) #读取日志文件
     sql_rs=sql_rs.merge(cfg_rs,how='left',on='sql_file') 
     rs=sh_rs.merge(sql_rs,how='outer',left_on='sh_cmd',right_on='sql_file')
-    rs['cfg_target_tb']=rs['cfg_target_tb'].fillna(rs['sh_cmd'])
-    oz_df=getOozie() # oozie元数据
-    oz_df['run_time']=oz_df['frequency'].apply(get_crontab)
-    oz_df['frequency']=oz_df['run_time'].apply(lambda x:x.split(' ')[0])
-    oz_df['run_rank']=oz_df['run_time'].rank(method ='dense')
-    sh_list=rs['sh_files'].drop_duplicates().dropna()
-    sh_list_key=sh_list.apply(lambda x:x.replace('.sh','').replace('_inc',''))
-    sh_oz_map=pd.DataFrame({'sh_files':sh_list,'sh_key':sh_list_key})
-    sh_oz_map=sh_oz_map.merge(oz_df,how='left',left_on='sh_key',right_on='job_name')
-    del sh_oz_map['job_last_time'],sh_oz_map['job_next_time'],sh_oz_map['job_used_times'],sh_oz_map['frequency'],sh_oz_map['run_time'],sh_oz_map['run_rank']
-    for i in range(sh_oz_map.shape[0]):
-         if pd.isnull(sh_oz_map.loc[i,'job_name']):
-             keys=sh_oz_map.loc[i,'sh_key']
-             #print(keys,sh_oz_map.loc[i,'job_name'])
-             for j in range(oz_df.shape[0]):
-                 if keys in oz_df.loc[j,'job_name']:
-                     sh_oz_map.loc[i,'job_name']=oz_df.loc[j,'job_name']
-                     
-    sh_oz_map=sh_oz_map.merge(oz_df,how='left',on='job_name')    
-    del sh_oz_map['sh_key'],i,j,keys,sh_list,sh_list_key #删除无效字段
-    rs=rs.merge(sh_oz_map,how='left',on='sh_files')
+    ms=rs[(rs['sh_files'].str.contains('subject')==True)|(rs['sh_files'].str.contains('sdd')==True)]
     hive_df=getHive()
-    sch_rs=rs[pd.notnull(rs['job_name'])] #在执行计划中的
-    last_rs=hive_df.merge(sch_rs,how='left',left_on='tb_name',right_on='cfg_target_tb')
-    last_rs['sh_files']=last_rs['sh_files'].fillna('无配置shell')
-    last_rs['job_name']=last_rs['job_name'].fillna('暂无定时配置')
-    last_rs['comments']=last_rs['comments'].fillna(last_rs['sql_tb_cn'])
-    etl_data=cons.meta('etl_data')
-    table_to_jobs=last_rs.copy()
-    last_rs['oper_date']=today
-    #result to mysql
-    etl_data.execute("delete from etl_job_set where oper_date='{0}'".format(today))
-    insert_rs=last_rs[insert_cols].copy()
-    insert_rs=insert_rs.astype('str')
-    insert_rs.to_sql(name='etl_job_set',con=etl_data,if_exists='append',index=False)
-    etl_data.execute("delete from etl_log_sum where oper_date='{0}'".format(today))
-    log_rs['oper_date']=today
-    log_rs[['tables_name', 'start_time', 'end_time', 'diff_times', 'error_flag',
-       'log_file', 'oper_date']].to_sql(name='etl_log_sum',con=etl_data,if_exists='append',index=False)
-    table_to_jobs=table_to_jobs.sort_values(by=['run_rank','sh_files'])
-    table_to_jobs.columns=cols_to_cn(table_to_jobs.columns)
-    del table_to_jobs['上次执行完成时间'],table_to_jobs['表空间大小'],table_to_jobs['下次执行时间'],table_to_jobs['表对应命令'],table_to_jobs['表对应etl上次用时秒']
-    del table_to_jobs['表行数'],table_to_jobs['表上次操作时间'],table_to_jobs['表最近分区'],table_to_jobs['表ETL完成后生成结果文件'],table_to_jobs['表创建时间'],table_to_jobs['表对应sql中文名称']
-    excel_writer = pd.ExcelWriter(main_path+'/ETL表调度配置文档.xlsx', engine='xlsxwriter',options={'strings_to_urls': False})
-    for i in list(table_to_jobs['数据库'].drop_duplicates()):
-        table_to_jobs[table_to_jobs['数据库']==i].to_excel(excel_writer,index=False,sheet_name=i)
-    excel_writer.close()
+    ms=ms.merge(hive_df,how='left',left_on='cfg_target_tb',right_on='tb_name')
+    err=ms[pd.isnull(ms['tb_name'])]
+    if err.shape[0]>0:
+        print(err['cfg_target_tb'])
+        print('表在hive中没有匹配到')
+    ms=ms[pd.notnull(ms['tb_name'])]
+    ms=ms.sort_values(by='tb_name')
+    ms=ms.reset_index(drop=True)
+    has_dep_tbs={}
+    tb_sql_map={}
+    tb_dep_map={}
+    no_dep_tbs=specia_list.copy()#pd.DataFrame(columns=['tb_name','sql_file','db_name'])
+    for i in range(ms.shape[0]):
+        tb=ms.loc[i,'tb_name']
+        tb_sql_map[tb]=ms.loc[i,'sql_file']
+        #print('\n目标表',tb)
+        depd=ms.loc[i,'cfg_denpend']
+        tb_dep_map[tb]=depd
+        new_depd=depd.copy()
+        for tp in depd:
+            #print(tp)
+            if tp[0:4] in confs.db_map.keys():
+                new_depd.remove(tp)
+            if tp in specia_list:
+                new_depd.remove(tp)
+        if len(new_depd)>0:
+            has_dep_tbs[tb]=new_depd
+        else :
+            if tb not in specia_list:
+                no_dep_tbs.append(tb)
+    tb_gp_map={}
+    for i in range(len(no_dep_tbs)):
+        tp=i%10+1
+        gp_sql[tp].append(no_dep_tbs[i])
+        tb_gp_map[no_dep_tbs[i]]=tp
+    for tb in has_dep_tbs.keys():
+        max_num=0
+        for tp in has_dep_tbs[tb]:
+            if tp in tb_gp_map.keys():
+                tp_max_num=tb_gp_map[tp]
+                if tp_max_num>max_num:
+                    max_num=tp_max_num
+            else :
+                print(tp,'依赖表没有加入配置')
+        if max_num>0:
+            if tb in tb_gp_map.keys():
+                print(tb,'重复')
+            else:
+                gp_sql[max_num].append(tb)
+                tb_gp_map[tb]=max_num
+    etl_data=conn.meta('etl_data')
+    sql="insert into job_group_set(tb_name,sql_file,depend,freq_type,group_id,rank_id) VALUES('{0}','{1}','{2}','{3}',{4},{5})"
+    for tb in gp_sql.keys():
+        tb_list=gp_sql[tb]
+        for i in range(len(tb_list)):
+            pass 
+            etl_data.execute(sql.format(tb_list[i],tb_sql_map[tb_list[i]],pymysql.escape_string(str(tb_dep_map[tb_list[i]])),freq_type,tb,i))
+
+          
+            
+    """
+            if tb not in specia_list:
+                no_dep_tbs.loc[i,'tb_name']=tb
+                no_dep_tbs.loc[i,'sql_file']=ms.loc[i,'sql_file']
+                no_dep_tbs.loc[i,'db_name']=ms.loc[i,'db_name']
+    no_dep_tbs=no_dep_tbs.sort_values(by=['db_name','tb_name'],ascending=False)
+    for tp in specia_list:
+        pass
+        #print(ms.loc[i,'cfg_denpend'])
+        #print(tb,depd)
     
-    #table_to_jobs.to_excel('e:/ETL表配置文档.xlsx',index=False,sheet_name='表')
-     
+    """
+    
+    
+    
+    
+    
+    
+    
+    
+ 
+  
     
              
                  

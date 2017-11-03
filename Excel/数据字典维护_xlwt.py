@@ -1,4 +1,4 @@
-from openpyxl import Workbook  
+import xlwt
 import pandas as pd
 from etlpy.cons import conn as cons
 def getHiveTb():
@@ -33,12 +33,52 @@ def getHiveTb():
     tbs=tbs.merge(tp,how='inner',left_on='tb_id',right_on='tb_id')
     return cols,tbs
 def excels(tbs,cols):
-    book = Workbook()
-    sheet_index = book.create_sheet('目录')
-    sheet_index['A1']='表名'
-    sheet_index['B1']='表注释'
-    sheet_index['C1']='备注'
-    sheet_index['D1']='修改'
+    book = xlwt.Workbook()
+    sheet_index = book.add_sheet('目录')
+    borders = xlwt.Borders()
+    borders.left = 1
+    borders.right = 1
+    borders.top = 1
+    borders.bottom = 1
+    borders.bottom_colour=0x3A 
+    #居中
+    alig=xlwt.Alignment()
+    alig.horz = xlwt.Alignment.HORZ_CENTER
+    alig.vert = xlwt.Alignment.VERT_CENTER
+    #链接的格式字体
+    font0 = xlwt.Font()
+    font0.name = 'Times New Roman'
+    font0.colour_index =4
+    font0.underline = True
+    font0.bold = True
+    sty_link = xlwt.XFStyle()
+    sty_link.font = font0
+    sty_link.borders = borders
+    #表头
+    font2 = xlwt.Font()
+    font2.name = '黑体'
+    font2.bold = True
+    sty_t2 = xlwt.XFStyle()
+    sty_t2.font = font2
+    sty_t2.borders = borders
+    sty_t2.alignment=alig
+    #表头2
+    font1 = xlwt.Font()
+    font1.name = '黑体'
+    font1.height=0x00C9
+    font1.bold = True
+    sty_t1 = xlwt.XFStyle()
+    sty_t1.font = font1
+    #表体
+    font3 = xlwt.Font()
+    font3.name = '黑体'
+    sty_t3 = xlwt.XFStyle()
+    sty_t3.font = font3
+    sty_t3.borders = borders
+    sheet_index.write(0, 0, '表名',sty_t2)
+    sheet_index.write(0, 1, '表注释',sty_t2)
+    sheet_index.write(0, 2, '备注',sty_t2)
+    sheet_index.write(0, 3, '修改',sty_t2)
     for j in range(5):
             sheet_index.col(j).width=256*25
     for i in range(tbs.shape[0]):
@@ -74,7 +114,7 @@ def excels(tbs,cols):
         link = 'HYPERLINK("#%s!A1";"%s")' % (sheet_name, tb_com)
         sheet_index.write(i+1, 1, xlwt.Formula(link),sty_link)
         #line+=1
-    book.save('d:/simple24.xls')
+    book.save('d:/simple2.xls')
     return tp
 if __name__=='__main__':
     cols,tbs=getHiveTb()
